@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Загрузить фото</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #eee;
+    }
+
+    .card-neon {
+      background: rgba(20, 25, 35, 0.9);
+      border-radius: 20px;
+      box-shadow: 0 0 25px rgba(0,255,255,0.25),
+                  0 0 50px rgba(0,255,255,0.1);
+      padding: 40px;
+      width: 420px;
+      animation: fadeIn 1s ease forwards;
+    }
+
+    h2 {
+      text-align: center;
+      color: #00e6e6;
+      text-shadow: 0 0 8px #00e6e6;
+      margin-bottom: 25px;
+    }
+
+    label { color: #ccc; font-weight: 500; }
+
+    .form-control, .form-control-file {
+      background: transparent;
+      border: 2px solid #00e6e6;
+      border-radius: 10px;
+      color: #fff;
+      margin-bottom: 15px;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      border-color: #ff00e6;
+      box-shadow: 0 0 10px #ff00e6;
+    }
+
+    .btn-login {
+      width: 100%;
+      background: linear-gradient(90deg, #00e6e6, #ff00e6);
+      border: none;
+      color: white;
+      border-radius: 12px;
+      padding: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-login:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px #ff00e6, 0 0 25px #00e6e6;
+    }
+
+    .alert {
+      border-radius: 10px;
+      font-weight: 500;
+    }
+
+    .switch-link {
+      display: block;
+      margin-top: 15px;
+      text-align: center;
+      color: #00e6e6;
+      text-decoration: none;
+    }
+
+    .switch-link:hover {
+      color: #ff00e6;
+      text-shadow: 0 0 8px #ff00e6;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="card-neon">
+    <h2>Загрузить фото</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" enctype="multipart/form-data">
+      <label for="photo">Выберите фото</label>
+      <input type="file" name="photo" id="photo" class="form-control-file" required accept="image/*">
+
+      <label for="description">Описание</label>
+      <input type="text" name="description" id="description" class="form-control" placeholder="Краткое описание фото">
+
+      <label for="tags">Теги (через запятую)</label>
+      <input type="text" name="tags" id="tags" class="form-control" placeholder="например: город, природа, путешествие" required>
+
+      <button type="submit" class="btn-login">Опубликовать</button>
+    </form>
+
+    <a href="{{ url_for('feed') }}" class="switch-link">← Вернуться в ленту</a>
+  </div>
+</body>
+</html>

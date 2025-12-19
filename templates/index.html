@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Генератор паролей</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #eee;
+            padding: 30px;
+        }
+
+        .card-neon {
+            background: rgba(15, 15, 30, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 0 25px rgba(0,255,255,0.35),
+                        0 0 60px rgba(0,255,255,0.15);
+            padding: 40px;
+            width: 450px;
+            animation: fadeIn 1s ease;
+        }
+
+        h2 {
+            text-align: center;
+            color: #00e6e6;
+            text-shadow: 0 0 10px #00e6e6;
+            margin-bottom: 25px;
+        }
+
+        label {
+            color: #ccc;
+            font-weight: 500;
+        }
+
+        /* Поля ввода */
+        .form-control {
+            background: transparent;
+            border: 2px solid #00e6e6;
+            border-radius: 10px;
+            color: #fff;
+            margin-bottom: 15px;
+        }
+
+        .form-control:focus {
+            border-color: #ff00e6;
+            box-shadow: 0 0 10px #ff00e6;
+        }
+
+        /* Выпадающий список */
+        .form-select {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            border: 2px solid #00e6e6;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            appearance: none;
+        }
+
+        .form-select:focus {
+            border-color: #ff00e6;
+            box-shadow: 0 0 10px #ff00e6;
+        }
+
+        .form-select option {
+            background-color: #0f2027; /* Тёмный фон внутри списка */
+            color: #00e6e6;
+        }
+
+        .form-select option:hover,
+        .form-select option:checked {
+            background-color: #00e6e6;
+            color: #000;
+        }
+
+        /* Кнопка генерации */
+        .btn-generate {
+            width: 100%;
+            background: linear-gradient(90deg, #00e6e6, #ff00e6);
+            border: none;
+            color: white;
+            border-radius: 12px;
+            padding: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+        }
+
+        .btn-generate:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px #ff00e6, 0 0 25px #00e6e6;
+            color: white;
+        }
+
+        /* Блок с паролем */
+        .password-box {
+            margin-top: 20px;
+            text-align: center;
+            background: rgba(0,0,0,0.25);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,255,255,0.3);
+        }
+
+        /* Кнопка выхода */
+        .logout {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #00e6e6;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .logout:hover {
+            color: #ff00e6;
+            text-shadow: 0 0 8px #ff00e6;
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(30px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+    </style>
+</head>
+<body>
+    <div class="card-neon">
+        <h2>🔐 Привет, {{ username }}!</h2>
+
+        {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST">
+            <label for="length">Введите длину пароля:</label>
+            <input type="number" id="length" name="length" required class="form-control" min="8" placeholder="от 8 символов">
+
+            <label for="complexity">Выберите сложность:</label>
+            <select id="complexity" name="complexity" class="form-select">
+                <option value="easy">Лёгкий</option>
+                <option value="medium" selected>Средний</option>
+                <option value="hard">Сложный</option>
+            </select>
+
+            <button type="submit" class="btn-generate mt-2">Сгенерировать пароль</button>
+        </form>
+
+        {% if password %}
+            <div class="password-box">
+                <h5>Ваш пароль:</h5>
+                <h3>{{ password }}</h3>
+            </div>
+        {% endif %}
+        {% if history %}
+    <div class="password-box mt-3">
+        <h5>История ваших паролей:</h5>
+        <ul>
+            {% for item in history %}
+                <li>{{ item }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+        {% endif %}
+
+        <a href="{{ url_for('logout') }}" class="logout">🚪 Выйти</a>
+    </div>
+</body>
+</html>
