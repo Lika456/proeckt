@@ -120,16 +120,18 @@
         <button class="btn btn-neon" type="submit">Поиск</button>
       </form>
 
-      <div class="navbar-nav ms-auto">
-        {% if 'user' in session %}
-          <a class="nav-link" href="{{ url_for('upload') }}">Загрузить фото</a>
-          <a class="nav-link" href="{{ url_for('profile') }}">Профиль</a>
-          <a class="nav-link" href="{{ url_for('logout') }}">Выйти</a>
-        {% else %}
-          <a class="nav-link" href="{{ url_for('login') }}">Войти</a>
-          <a class="nav-link" href="{{ url_for('register') }}">Регистрация</a>
-        {% endif %}
-      </div>
+      <!-- Меню пользователя -->
+   <div class="navbar-nav ms-auto">
+    {% if 'user' in session %}
+        <a class="nav-link" href="{{ url_for('upload') }}">Загрузить фото</a>
+        <a class="nav-link" href="{{ url_for('profile') }}">Профиль</a>
+        <a class="nav-link" href="{{ url_for('logout') }}">Выйти</a>
+    {% elif 'guest' in session %}
+        <a class="nav-link" href="{{ url_for('login') }}">Войти / Регистрация</a>
+    {% else %}
+        <a class="nav-link" href="{{ url_for('login') }}">Войти / Регистрация</a>
+    {% endif %}
+</div>
     </div>
   </nav>
 
@@ -144,6 +146,7 @@
         {% endfor %}
       {% endif %}
     {% endwith %}
+
 
     <!-- Общая лента фото -->
     <div class="row">

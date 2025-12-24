@@ -15,6 +15,7 @@
       justify-content: center;
       align-items: center;
       color: #eee;
+      padding: 20px;
     }
 
     .card-neon {
@@ -23,7 +24,8 @@
       box-shadow: 0 0 25px rgba(0,255,255,0.25),
                   0 0 50px rgba(0,255,255,0.1);
       padding: 40px;
-      width: 380px;
+      width: 100%;
+      max-width: 380px;
       animation: fadeIn 1s ease forwards;
     }
 
@@ -48,6 +50,7 @@
     .form-control:focus {
       border-color: #ff00e6;
       box-shadow: 0 0 10px #ff00e6;
+      background: rgba(255,255,255,0.05);
     }
 
     .btn-login {
@@ -61,25 +64,26 @@
       text-transform: uppercase;
       letter-spacing: 1px;
       transition: transform 0.2s, box-shadow 0.2s;
+      margin-top: 10px;
     }
 
     .btn-login:hover {
-      transform: scale(1.05);
+      transform: scale(1.03);
       box-shadow: 0 0 15px #ff00e6, 0 0 25px #00e6e6;
     }
 
     .alert {
       border-radius: 10px;
       font-weight: 500;
+      border: none;
+      margin-bottom: 20px;
     }
 
     .switch-link, .forgot-link {
       display: block;
-      margin-top: 15px;
       text-align: center;
       color: #00e6e6;
       text-decoration: none;
-      font-size: 14px;
       transition: all 0.3s ease;
     }
 
@@ -89,9 +93,51 @@
       font-size: 13px;
     }
 
-    .switch-link:hover, .forgot-link:hover {
+    .switch-link {
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    .switch-link:hover, .forgot-link:hover, .guest-link:hover {
       color: #fff;
       text-shadow: 0 0 8px currentColor;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #00e6e6, transparent);
+    }
+
+    .divider-text {
+      color: #aaa;
+      font-size: 13px;
+    }
+
+    .guest-link {
+      display: block;
+      text-align: center;
+      color: #00e6e6;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95em;
+      padding: 8px 0;
+      border: 1px solid #00e6e6;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .guest-link:hover {
+      background: rgba(0,230,230,0.1);
+      box-shadow: 0 0 8px #00e6e6;
     }
 
     @keyframes fadeIn {
@@ -124,6 +170,14 @@
 
     <a href="{{ url_for('reset_password') }}" class="forgot-link">Забыли пароль?</a>
     <a href="{{ url_for('register') }}" class="switch-link">Создать новый аккаунт</a>
+
+    <div class="divider">
+  <span class="divider-text">Или</span>
+</div>
+
+<a href="{{ url_for('continue_as_guest') }}" class="guest-link">
+    Продолжить без регистрации
+</a>
   </div>
 </body>
 </html>

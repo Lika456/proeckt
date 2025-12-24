@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>{{ photo.description or 'Фото' }} | PinLite</title>
+  <title>Фото #{{ photo.id }} — @{{ photo.author }}</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
@@ -30,40 +30,36 @@
       text-shadow: 0 0 8px #ff00e6;
     }
 
-    .main-container {
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-
-    .photo-block {
+    .post {
       background: rgba(20, 25, 35, 0.9);
-      border-radius: 20px;
-      box-shadow: 0 0 25px rgba(0,255,255,0.25);
-      padding: 15px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0,255,255,0.2);
+      overflow: hidden;
       margin-bottom: 20px;
     }
 
-    .photo-block img {
+    .post-header {
+      padding: 20px 25px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .author { color: #00e6e6; font-weight: 600; font-size: 1.1em; }
+    .post-date { font-size: 0.85em; color: #aaa; }
+
+    .post-image {
       width: 100%;
-      border-radius: 10px;
-      border: 2px solid #00e6e6;
+      max-height: 60vh;
       object-fit: contain;
-      max-height: 80vh;
+      background: #000;
     }
 
-    .photo-meta {
-      margin-top: 15px;
-      padding: 0 10px;
-    }
+    .post-content { padding: 20px 25px 15px; }
 
-    .author {
-      color: #00e6e6;
-      font-weight: 600;
-    }
+    .post-description { margin: 10px 0; line-height: 1.5; }
 
-    .tags {
-      margin-top: 10px;
-    }
+    .tags { margin: 12px 0; }
 
     .tag {
       display: inline-block;
@@ -71,90 +67,56 @@
       color: #00e6e6;
       border-radius: 8px;
       padding: 3px 8px;
-      font-size: 12px;
       margin-right: 5px;
       margin-bottom: 5px;
       text-decoration: none;
     }
 
-    .tag:hover {
-      background: rgba(255,0,230,0.2);
-      color: #ff00e6;
+    .tag:hover { background: rgba(255,0,230,0.2); color: #ff00e6; }
+
+    .comments-section { padding: 0 25px 20px; margin-top: -10px; }
+    .comment { margin-bottom: 18px; position: relative; }
+    .comment-root { padding-left: 0; }
+    .comment-reply { padding-left: 40px; border-left: 2px solid rgba(0,230,230,0.3); }
+
+    .comment-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+    .comment-author { font-weight: 600; color: #00e6e6; }
+    .comment-date { font-size: 0.8em; color: #aaa; }
+    .comment-edited { font-size: 0.8em; color: #ff9900; margin-left: 4px; }
+    .comment-text { line-height: 1.5; margin-bottom: 8px; }
+
+    .comment-actions { display: flex; gap: 8px; font-size: 0.85em; }
+    .btn-action { background: transparent; border: none; color: #00ccff; cursor: pointer; padding: 2px 4px; margin-right: 4px; }
+    .btn-action:hover { text-decoration: underline; }
+    .btn-delete { color: #ff3366; }
+    .btn-delete:hover { color: #ff0000; }
+
+    .reply-form {
+      margin-top: 10px;
+      padding: 10px;
+      background: rgba(20, 25, 35, 0.6);
+      border-radius: 8px;
+      display: none;
     }
 
-    .comments-block {
-      background: rgba(20, 25, 35, 0.9);
-      border-radius: 20px;
-      box-shadow: 0 0 25px rgba(0,255,255,0.25);
-      padding: 20px;
+    .reply-form textarea {
+      width: 100%;
+      background: rgba(40, 45, 55, 0.8);
+      border: 1px solid #00e6e6;
+      border-radius: 6px;
+      color: white;
+      padding: 8px;
+      resize: vertical;
+      min-height: 50px;
     }
 
-    .comment {
-      padding: 15px;
-      border-bottom: 1px solid rgba(0,230,230,0.2);
-      margin-bottom: 15px;
-      position: relative;
-      transition: background-color 0.2s;
-    }
+    .reply-form button { margin-top: 6px; padding: 4px 10px; }
 
-    .comment:last-child {
-      border-bottom: none;
-      margin-bottom: 0;
-    }
-
-    .comment:hover {
-      background-color: rgba(0, 230, 230, 0.05);
-    }
-
-    .comment-level-1 { margin-left: 40px; }
-    .comment-level-2 { margin-left: 80px; }
-    .comment-level-3 { margin-left: 120px; }
-
-    .comment-author {
-      color: #00e6e6;
-      font-weight: 600;
-      margin-bottom: 5px;
-    }
-
-    .comment-reply-to {
-      font-size: 12px;
-      color: #999;
-      margin-left: 10px;
-    }
-
-    .comment-date {
-      font-size: 12px;
-      color: #ccc;
-      margin-left: 10px;
-    }
-
-    .comment-actions {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      opacity: 0;
-      display: flex;
-      gap: 8px;
-      transition: opacity 0.2s;
-    }
-
-    .comment:hover .comment-actions {
-      opacity: 1;
-    }
-
-    .form-control {
-      background: transparent;
-      border: 2px solid #00e6e6;
-      border-radius: 10px;
-      color: #fff;
-      margin-bottom: 15px;
-    }
-
-    .form-control:focus {
-      border-color: #ff00e6;
-      box-shadow: 0 0 10px #ff00e6;
-      background: rgba(255,255,255,0.05);
-      color: #fff;
+    .new-comment-form {
+      background: rgba(30, 35, 45, 0.7);
+      border-top: 1px solid rgba(0,230,230,0.3);
+      padding: 20px 25px;
+      margin-top: 20px;
     }
 
     .btn-neon {
@@ -166,93 +128,64 @@
       font-weight: 600;
     }
 
-    .btn-neon:hover {
-      box-shadow: 0 0 10px #ff00e6;
-    }
+    .btn-neon:hover { box-shadow: 0 0 10px #ff00e6; }
 
-    .back-link {
-      display: inline-block;
-      margin-bottom: 20px;
+    .btn-outline-neon {
+      border: 1px solid #00e6e6;
       color: #00e6e6;
-      text-decoration: none;
-    }
-
-    .back-link:hover {
-      color: #ff00e6;
-      text-shadow: 0 0 8px #ff00e6;
-    }
-
-    .btn-action {
       background: transparent;
-      border: none;
-      color: #ccc;
-      font-size: 16px;
-      padding: 0;
-      cursor: pointer;
-      transition: color 0.2s;
+      border-radius: 8px;
+      padding: 6px 12px;
     }
 
-    .btn-action:hover {
-      color: #00e6e6;
+    .btn-outline-neon:hover {
+      background: rgba(0,230,230,0.2);
+      box-shadow: 0 0 8px rgba(0,230,230,0.5);
     }
 
-    .error-block {
-      background: rgba(20, 25, 35, 0.9);
-      border-radius: 20px;
-      box-shadow: 0 0 25px rgba(0,255,255,0.25);
-      padding: 40px;
-      text-align: center;
-      max-width: 600px;
-      margin: 0 auto;
+    .btn-outline-danger {
+      border: 1px solid #ff3366;
+      color: #ff3366;
     }
+
+    .btn-outline-danger:hover { background: rgba(255, 51, 102, 0.15); }
+
+    .text-neon { color: #00e6e6; text-shadow: 0 0 5px #00e6e6; }
   </style>
 </head>
 <body>
-  <!-- Навигационная панель -->
   <nav class="navbar navbar-neon navbar-expand-lg">
     <div class="container">
       <a class="navbar-brand" href="{{ url_for('feed') }}">PinLite</a>
-
-      <div class="navbar-nav ms-auto">
-        {% if 'user' in session %}
+      {% if 'user' in session %}
+        <div class="navbar-nav ms-auto">
           <a class="nav-link" href="{{ url_for('upload') }}">Загрузить фото</a>
           <a class="nav-link" href="{{ url_for('profile') }}">Профиль</a>
           <a class="nav-link" href="{{ url_for('logout') }}">Выйти</a>
-        {% else %}
+        </div>
+      {% else %}
+        <div class="navbar-nav ms-auto">
           <a class="nav-link" href="{{ url_for('login') }}">Войти</a>
-          <a class="nav-link" href="{{ url_for('register') }}">Регистрация</a>
-        {% endif %}
-      </div>
+        </div>
+      {% endif %}
     </div>
   </nav>
 
-  <!-- Основной контент: фото + комментарии -->
-  <div class="container main-container">
-    <a href="{{ url_for('feed') }}" class="back-link">← Вернуться в ленту</a>
-
-    {% if not photo %}
-      <!-- Блок с ошибкой, если фото не найдено -->
-      <div class="error-block mt-4">
-        <h3>Фото не найдено</h3>
-        <p class="text-muted mt-2">Фото было удалено или никогда не существовало</p>
-        <a href="{{ url_for('feed') }}" class="btn btn-neon mt-4">Вернуться в ленту</a>
+  <div class="container">
+    <div class="post">
+      <div class="post-header">
+        <span class="author">
+    <a href="{{ url_for('public_profile', username=photo.author) }}" class="text-neon text-decoration-none">@{{ photo.author }}</a>
+</span>
       </div>
-    {% else %}
-      <!-- Блок с фото — крупным по центру -->
-      <div class="photo-block">
-        <!-- Фоллбэк: если фото удалено — показываем плейсхолдер -->
-        <img
-          src="{{ url_for('static', filename='uploads/' + photo.filename) }}"
-          alt="{{ photo.description or 'Фото' }}"
-          onerror="this.src='https://via.placeholder.com/800x500?text=Фото+удалено';">
 
-        <div class="photo-meta">
-          <span class="author">@{{ photo.author }}</span>
-          <span class="text-muted">{{ photo.date }}</span>
-        </div>
+      <img src="{{ url_for('static', filename='uploads/' + photo.filename) }}" alt="{{ photo.description or 'Фото' }}" class="post-image">
 
+      <div class="post-content">
         {% if photo.description %}
-          <p class="mt-1">{{ photo.description }}</p>
+          <div class="post-description">{{ photo.description }}</div>
+        {% else %}
+          <div class="post-description text-muted"><em>Без описания</em></div>
         {% endif %}
 
         <div class="tags">
@@ -260,93 +193,98 @@
             <a href="{{ url_for('search', q=tag) }}" class="tag">#{{ tag }}</a>
           {% endfor %}
         </div>
+
+        {% if photo.author == session.get('user') %}
+        <div class="mt-3 d-flex gap-2">
+          <a href="{{ url_for('edit_photo', photo_id=photo.id) }}" class="btn btn-outline-neon">✎ Редактировать</a>
+          <a href="{{ url_for('delete_photo', photo_id=photo.id) }}" class="btn btn-outline-danger"
+             onclick="return confirm('Удалить фото?')">🗑 Удалить</a>
+        </div>
+        {% endif %}
       </div>
 
-      <!-- Блок с комментариями — ровно под фото -->
-      <div class="comments-block">
-        <h4>Комментарии ({{ comments|length }})</h4>
-
+      <!-- ===== Комментарии ===== -->
+      <div class="comments-section">
         {% if comments %}
-          {% macro render_comments(parent_id=None, level=0) %}
-            {% for comment in comments %}
-              {% if comment.parent_id == parent_id %}
-                <div class="comment comment-level-{{ level }}">
-                  <div class="comment-actions">
-                    {% if 'user' in session %}
-                      <button class="btn-action" onclick="toggleReplyForm('{{ comment.id }}', '{{ comment.author }}')" title="Ответить">↩️</button>
+          {% set top_level = comments | selectattr('parent_id', 'none') | list %}
+          {% set replies = comments | rejectattr('parent_id', 'none') | list %}
 
-                      {% if comment.author == session['user'] %}
-                        <a href="{{ url_for('edit_comment', comment_id=comment.id) }}" class="btn-action" title="Редактировать">✏️</a>
-                        <a href="{{ url_for('delete_comment', comment_id=comment.id) }}" class="btn-action" onclick="return confirm('Удалить комментарий?')" title="Удалить">🗑️</a>
-                      {% endif %}
-                    {% endif %}
-                  </div>
-
-                  <div>
-                    <span class="comment-author">{{ comment.author }}</span>
-                    <span class="comment-date">{{ comment.date }}</span>
-                    {% if comment.edited %}
-                      <span class="text-muted small ms-2">(отредактировано)</span>
-                    {% endif %}
-
-                    {% if comment.parent_id %}
-  {% set parent_comment = comments|selectattr('id', 'equalto', comment.parent_id)|first %}
-  {% if parent_comment %}
-    <span class="comment-reply-to">→ Ответ @{{ parent_comment.author }}</span>
-  {% endif %}
-{% endif %}
-                  </div>
-                  <p class="mt-1">{{ comment.text }}</p>
-
-                  {% if 'user' in session %}
-                    <form method="POST" class="mt-2 d-none" id="reply-form-{{ comment.id }}">
-                      <input type="hidden" name="parent_id" value="{{ comment.id }}">
-                      <div class="mb-2">
-                        <textarea class="form-control form-control-sm" name="comment" rows="2" required placeholder="Написать ответ..."></textarea>
-                      </div>
-                      <button type="submit" class="btn btn-sm btn-neon">Отправить</button>
-                      <button type="button" class="btn btn-sm btn-secondary ms-2" onclick="toggleReplyForm('{{ comment.id }}')">Отмена</button>
-                    </form>
+          {% macro render_comment(comment, depth=1) %}
+            <div class="comment {% if depth == 1 %}comment-root{% else %}comment-reply{% endif %}">
+              <div class="comment-header">
+                <span class="comment-author">@{{ comment.author }}</span>
+                <span>
+                  <span class="comment-date">{{ comment.date }}</span>
+                  {% if comment.edited %}
+                    <span class="comment-edited">(изменено)</span>
                   {% endif %}
+                </span>
+              </div>
 
-                  {{ render_comments(comment.id, level + 1) }}
-                </div>
+              <div class="comment-text">{{ comment.text | safe }}</div>
+
+              {% if 'user' in session %}
+              <div class="comment-actions">
+                <button class="btn-action" onclick="toggleReply({{ comment.id }})">Ответить</button>
+                {% if comment.author == session['user'] %}
+                  <a href="{{ url_for('edit_comment', comment_id=comment.id) }}" class="btn-action">✎ Ред.</a>
+                  <a href="{{ url_for('delete_comment', comment_id=comment.id) }}" class="btn-action btn-delete"
+                     onclick="return confirm('Удалить комментарий?')">🗑 Удалить</a>
+                {% endif %}
+              </div>
+
+              <div id="reply-form-{{ comment.id }}" class="reply-form">
+                <form method="POST">
+                  <textarea name="comment" class="form-control" rows="2" required placeholder="Ваш ответ..."></textarea>
+                  <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                  <button type="submit" class="btn btn-sm btn-neon">Отправить</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleReply({{ comment.id }})">Отмена</button>
+                </form>
+              </div>
               {% endif %}
-            {% endfor %}
+
+              {% for reply in replies if reply.parent_id == comment.id %}
+                {{ render_comment(reply, depth + 1) }}
+              {% endfor %}
+            </div>
           {% endmacro %}
 
-          {{ render_comments() }}
+          {% for comment in top_level %}
+            {{ render_comment(comment) }}
+          {% endfor %}
         {% else %}
-          <p class="text-muted">Комментариев еще нет</p>
-        {% endif %}
-
-        {% if 'user' in session %}
-          <form method="POST" class="mt-4">
-            <div class="mb-3">
-              <label for="comment" class="form-label">Добавить комментарий</label>
-              <textarea class="form-control" id="comment" name="comment" rows="3" required placeholder="Ваш комментарий"></textarea>
-            </div>
-            <button type="submit" class="btn-neon">Отправить</button>
-          </form>
-        {% else %}
-          <p class="mt-4 text-muted">Чтобы оставить комментарий, <a href="{{ url_for('login') }}" class="text-primary">войдите в аккаунт</a></p>
+          <p class="text-muted">Пока нет комментариев. Будьте первым!</p>
         {% endif %}
       </div>
-    {% endif %}
+
+      <!-- Форма нового комментария -->
+      {% if 'user' in session %}
+    <div class="new-comment-form">
+        <h5>Оставить комментарий</h5>
+        <form method="POST">
+            <textarea name="comment" class="form-control bg-secondary text-light" rows="3" required
+                      placeholder="Напишите что-нибудь..."></textarea>
+            <input type="hidden" name="parent_id">
+            <button type="submit" class="btn btn-neon mt-2">Отправить</button>
+        </form>
+    </div>
+{% else %}
+    <div class="new-comment-form text-center">
+        <p class="mb-3">Чтобы оставить комментарий или ответ — <a href="{{ url_for('login') }}" class="text-neon">войдите</a> или <a href="{{ url_for('register') }}" class="text-neon">зарегистрируйтесь</a>.</p>
+        <a href="{{ url_for('login') }}" class="btn btn-neon">Войти</a>
+    </div>
+{% endif %}
+    </div>
   </div>
 
   <script>
-    function toggleReplyForm(commentId, authorName) {
-      const form = document.getElementById(`reply-form-${commentId}`);
-      const textarea = form.querySelector('textarea');
-
-      if (form.classList.contains('d-none')) {
-        textarea.value = `@${authorName}, `;
-        textarea.focus();
-        textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+    function toggleReply(commentId) {
+      const form = document.getElementById('reply-form-' + commentId);
+      document.querySelectorAll('.reply-form').forEach(f => f.style.display = 'none');
+      if (form) {
+        form.style.display = form.style.display === 'block' ? 'none' : 'block';
+        if (form.style.display === 'block') form.querySelector('textarea').focus();
       }
-
-      form.classList.toggle('d-none');
     }
   </script>
 </body>

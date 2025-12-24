@@ -93,11 +93,11 @@
       color: #ff00e6;
     }
 
-    .btn-delete {
+    .btn-action {
       position: absolute;
       top: 10px;
       right: 10px;
-      background: rgba(255, 60, 60, 0.8);
+      background: rgba(40, 40, 50, 0.8);
       border: none;
       border-radius: 50%;
       width: 30px;
@@ -108,16 +108,30 @@
       align-items: center;
       justify-content: center;
       opacity: 0;
-      transition: opacity 0.3s;
+      transition: opacity 0.3s, background 0.3s;
+      text-decoration: none;
+      line-height: 1;
     }
 
-    .photo-card:hover .btn-delete {
+    .photo-card:hover .btn-action {
       opacity: 1;
     }
 
+    .btn-delete {
+      background: rgba(255, 60, 60, 0.8);
+    }
     .btn-delete:hover {
       background: rgba(255, 0, 0, 0.9);
       box-shadow: 0 0 10px rgba(255, 60, 60, 0.8);
+    }
+
+    .btn-edit {
+      background: rgba(50, 200, 255, 0.8);
+      right: 45px; /* сдвигаем левее кнопки удаления */
+    }
+    .btn-edit:hover {
+      background: rgba(0, 230, 230, 0.9);
+      box-shadow: 0 0 10px rgba(0, 230, 230, 0.8);
     }
 
     .btn-neon {
@@ -139,7 +153,6 @@
   <nav class="navbar navbar-neon navbar-expand-lg">
     <div class="container">
       <a class="navbar-brand" href="{{ url_for('feed') }}">PinLite</a>
-
       <div class="navbar-nav ms-auto">
         <a class="nav-link" href="{{ url_for('upload') }}">Загрузить фото</a>
         <a class="nav-link active" href="{{ url_for('profile') }}">Профиль</a>
@@ -148,14 +161,13 @@
     </div>
   </nav>
 
-  <!-- Заголовок профиля -->
   <div class="container">
     <div class="profile-header">
       <h2>@{{ session['user'] }}</h2>
       <p>Ваши опубликованные фото: {{ photos|length }}</p>
     </div>
 
-    <!-- Блок с сообщениями -->
+    <!-- Сообщения -->
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}
@@ -166,7 +178,7 @@
       {% endif %}
     {% endwith %}
 
-    <!-- Фото пользователя -->
+    <!-- Фото -->
     <div class="row">
       {% if photos %}
         {% for photo in photos %}
@@ -175,7 +187,12 @@
               <a href="{{ url_for('photo_page', photo_id=photo.id) }}">
                 <img src="{{ url_for('static', filename='uploads/' + photo.filename) }}" alt="{{ photo.description or 'Фото' }}">
               </a>
-              <a href="{{ url_for('delete_photo', photo_id=photo.id) }}" class="btn-delete" onclick="return confirm('Удалить это фото?')">×</a>
+
+              <!-- Кнопки действий -->
+              <a href="{{ url_for('edit_photo', photo_id=photo.id) }}" class="btn-action btn-edit" title="Редактировать">✎</a>
+              <a href="{{ url_for('delete_photo', photo_id=photo.id) }}" class="btn-action btn-delete" title="Удалить"
+                 onclick="return confirm('Удалить это фото?')">×</a>
+
               <div class="card-body">
                 <p class="small text-muted mb-2">{{ photo.date }}</p>
                 {% if photo.description %}
