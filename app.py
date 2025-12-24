@@ -18,7 +18,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
-# Глобальные списки для фото и комментариев
+
 photos = []
 comments = []
 
@@ -27,7 +27,7 @@ def load_users():
     users = {}
     global photos, comments
 
-    # Сбрасываем списки перед загрузкой
+  
     photos.clear()
     comments.clear()
 
@@ -47,7 +47,6 @@ def load_users():
                 user_photos = parts[2].split("|") if len(parts) > 2 else []
                 user_comments = parts[3].split("|") if len(parts) > 3 else []
 
-                # Восстанавливаем фото пользователя
                 user_photos_list = []
                 for p_str in user_photos:
                     if not p_str:
@@ -65,7 +64,7 @@ def load_users():
                         user_photos_list.append(photo)
                         photos.append(photo)
 
-                # Восстанавливаем комментарии пользователя
+              
                 user_comments_list = []
                 for c_str in user_comments:
                     if not c_str:
@@ -84,14 +83,14 @@ def load_users():
                         user_comments_list.append(comment)
                         comments.append(comment)
 
-                # ИСПРАВЛЕНО: Гарантируем наличие полей для всех пользователей
+               
                 users[username] = {
                     "password": password,
                     "photos": user_photos_list if user_photos_list else [],
                     "comments": user_comments_list if user_comments_list else []
                 }
 
-    # ИСПРАВЛЕНО: Добавляем предопределенных пользователей с пустыми списками
+ 
     for username, password in PREDEFINED_USERS.items():
         if username not in users:
             users[username] = {
@@ -108,7 +107,7 @@ def save_users(users):
 
     with open("users.txt", "w", encoding="utf-8") as file:
         for username, data in users.items():
-            # Форматируем фото для сохранения
+       
             photos_str = []
             for p in data["photos"]:
                 tags_str = ";".join(p["tags"])
@@ -116,7 +115,6 @@ def save_users(users):
                 photos_str.append(p_str)
             photos_str = "|".join(photos_str)
 
-            # Форматируем комментарии для сохранения
             comments_str = []
             for c in data["comments"]:
                 parent_id = c["parent_id"] or "None"
@@ -128,7 +126,6 @@ def save_users(users):
             line = f"{username}::{data['password']}::{photos_str}::{comments_str}\n"
             file.write(line)
 
-    # Обновляем глобальные списки
     photos = [p for u in users.values() for p in u["photos"]]
     comments = [c for u in users.values() for c in u["comments"]]
 
@@ -147,7 +144,7 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated
 
-# Декоратор для страниц просмотра: разрешаем гостям, но редиректим на логин, если режим не выбран
+
 def view_route(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -161,22 +158,22 @@ def view_route(f):
 
 @app.route("/continue_as_guest")
 def continue_as_guest():
-    # Очищаем сессию пользователя, если она была
+
     session.pop('user', None)
-    # Устанавливаем флаг гостя
+ 
     session['guest'] = True
     flash("Ты просматриваешь сайт как гость. Чтобы комментировать и публиковать — войди или зарегистрируйся.", "info")
     return redirect(url_for("feed"))
 
 @app.route('/')
 def index():
-    # Если пользователь авторизован — сразу в ленту
+ 
     if 'user' in session:
         return redirect(url_for("feed"))
-    # Если гость — тоже в ленту
+ 
     elif 'guest' in session:
         return redirect(url_for("feed"))
-    # Иначе — на страницу логина
+  
     else:
         return redirect(url_for("login"))
 
@@ -192,12 +189,12 @@ def login():
         users_combined = {**PREDEFINED_USERS, **users_simple}
 
         if username in users_combined and users_combined[username] == password:
-            # Очищаем флаг гостя, если он был
+        
             session.pop('guest', None)
-            # Устанавливаем сессию пользователя
+          
             session['user'] = username
             flash(f"Добро пожаловать, {username}!", "success")
-            # Прямо редиректим в ленту (не через промежуточный шаг)
+         
             return redirect(url_for("feed"))
         else:
             flash("Неверные данные! Зарегистрируйтесь.", "error")
@@ -299,7 +296,7 @@ def upload():
         filename = secure_filename(f"{session['user']}_{datetime.now().strftime('%Y%m%d%H%M%S')}_{file.filename}")
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-        # Добавляем фото в глобальный список
+
         photo_id = str(len(photos) + 1)
         new_photo = {
             "id": photo_id,
@@ -311,10 +308,10 @@ def upload():
         }
         photos.append(new_photo)
 
-        # --- УПРОЩЕННАЯ ЛОГИКА СОХРАНЕНИЯ ---
+     
         users = load_users()
 
-        # Гарантируем, что пользователь существует и имеет нужные поля
+  
         if session['user'] not in users:
             users[session['user']] = {
                 "password": "",
@@ -322,7 +319,7 @@ def upload():
                 "comments": []
             }
 
-        # Добавляем фото и сохраняем
+
         users[session['user']]["photos"].append(new_photo)
         save_users(users)
 
@@ -370,7 +367,7 @@ def delete_photo(photo_id):
 @app.route("/photo/edit/<int:photo_id>", methods=["GET", "POST"])
 @login_required
 def edit_photo(photo_id):
-    # Найти фото в глобальном списке
+  
     photo = None
     photo_index = -1
     for i, p in enumerate(photos):
@@ -383,7 +380,7 @@ def edit_photo(photo_id):
         flash("Фото не найдено!", "error")
         return redirect(url_for('feed'))
 
-    # Проверка: только автор может редактировать
+  
     if photo['author'] != session['user']:
         flash("Вы не можете редактировать это фото!", "error")
         return redirect(url_for('photo_page', photo_id=photo_id))
@@ -397,11 +394,11 @@ def edit_photo(photo_id):
             flash("Добавьте хотя бы один тег!", "error")
             return render_template("edit_photo.html", photo=photo)
 
-        # Обновляем фото в глобальном списке
+    
         photos[photo_index]['description'] = description
         photos[photo_index]['tags'] = tags
 
-        # Обновляем фото в данных пользователя
+     
         users = load_users()
         user_photos = users[session['user']]["photos"]
         for i, p in enumerate(user_photos):
@@ -431,7 +428,7 @@ def search():
 
 
 @app.route("/photo/<int:photo_id>", methods=["GET", "POST"])
-@view_route  # Заменили login_required на view_route
+@view_route 
 def photo_page(photo_id):
     photo = None
     for p in photos:
@@ -443,7 +440,7 @@ def photo_page(photo_id):
         flash("Фото не найдено!", "error")
         return redirect(url_for('feed'))
 
-    # Только авторизованные могут комментировать
+  
     if request.method == "POST" and 'user' in session:
         text = request.form.get('comment').strip()
         parent_id = request.form.get('parent_id', None)
@@ -493,7 +490,7 @@ def edit_comment(comment_id):
     if request.method == "POST":
         new_text = request.form.get('text').strip()
         if new_text:
-            # Обновляем комментарий в общем списке
+     
             comment['text'] = new_text
             comment['edited'] = True
             comment['edit_date'] = datetime.now().strftime("%d.%m.%Y %H:%M")
@@ -507,7 +504,7 @@ def edit_comment(comment_id):
                     user_comments[i] = comment
                     break
 
-            # Сохраняем все изменения
+          
             save_users(users)
 
             flash("Комментарий отредактирован!", "success")
@@ -538,7 +535,7 @@ def delete_comment(comment_id):
         flash("Вы не можете удалить этот комментарий!", "error")
         return redirect(url_for('photo_page', photo_id=target_comment['photo_id']))
 
-    # Удаляем комментарий
+
     del user_comments[target_index]
     save_users(users)
 
@@ -547,10 +544,11 @@ def delete_comment(comment_id):
 
 
 if __name__ == '__main__':
-    # Загружаем данные при запуске
+  
     load_users()
 
     if not os.path.exists("users.txt"):
         with open("users.txt", "w", encoding="utf-8") as f:
             f.write("user:user1::::\nadmin:admin1::::\n")
+
     app.run(host='0.0.0.0', port=5000, debug=True)
